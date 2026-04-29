@@ -17,6 +17,10 @@ if uploaded_file is not None:
     st.subheader("Dataset Preview")
     st.write(df.head())
 
+    # Fix target column: ensure Irrigation is uppercase ON/OFF
+    if "Irrigation" in df.columns:
+        df["Irrigation"] = df["Irrigation"].astype(str).str.strip().str.upper()
+
     # Encode categorical columns
     encoders = {}
     for column in df.columns:
@@ -37,8 +41,13 @@ if uploaded_file is not None:
     st.subheader("Encoded Dataset")
     st.write(df.head())
 
-    # Target column
-    target_column = st.selectbox("Select Target Column", df.columns)
+    # Fix target to Irrigation if available, else let user pick
+    if "Irrigation" in df.columns:
+        target_column = "Irrigation"
+        st.info("Target column automatically set to: **Irrigation**")
+    else:
+        target_column = st.selectbox("Select Target Column", df.columns)
+
     X = df.drop(target_column, axis=1)
     y = df[target_column].astype(int)
 
@@ -69,13 +78,17 @@ if uploaded_file is not None:
 
     # Prediction section
     st.subheader("Predict Irrigation")
+    st.markdown("Fill in the field values below to predict whether irrigation should be **ON** or **OFF**.")
+
     user_input = {}
-    for col in X.columns:
-        user_input[col] = st.number_input(
-            f"Enter {col}",
-            value=float(X[col].mean()),
-            format="%.4f"
-        )
+    cols = st.columns(2)
+    for i, col in enumerate(X.columns):
+        with cols[i % 2]:
+            user_input[col] = st.number_input(
+                f"{col}",
+                value=float(X[col].mean()),
+                format="%.4f"
+            )
 
     input_df = pd.DataFrame([user_input]).astype(np.float64)
 
@@ -83,19 +96,35 @@ if uploaded_file is not None:
         "Choose Model", ["Decision Tree", "Random Forest"]
     )
 
-    if st.button("Predict"):
+    if st.button("Predict Irrigation", use_container_width=True):
         if model_choice == "Decision Tree":
             prediction = dt_model.predict(input_df)[0]
         else:
             prediction = rf_model.predict(input_df)[0]
 
-        # Decode prediction if target was originally categorical
+        # Decode prediction back to ON/OFF
         if target_column in encoders:
             prediction_label = encoders[target_column].inverse_transform([int(prediction)])[0]
         else:
-            prediction_label = prediction
+            prediction_label = str(prediction)
 
-        st.success(f"Prediction Result: {prediction_label}")
+        # Display result clearly
+        if prediction_label == "ON":
+            st.success("💧 Irrigation Required: **ON**")
+            st.markdown(
+                "<div style='background-color:#d4edda;padding:20px;border-radius:10px;"
+                "text-align:center;font-size:32px;font-weight:bold;color:#155724;'>"
+                "💧 IRRIGATION: ON</div>",
+                unsafe_allow_html=True,
+            )
+        else:
+            st.warning("🚫 Irrigation Not Required: **OFF**")
+            st.markdown(
+                "<div style='background-color:#fff3cd;padding:20px;border-radius:10px;"
+                "text-align:center;font-size:32px;font-weight:bold;color:#856404;'>"
+                "🚫 IRRIGATION: OFF</div>",
+                unsafe_allow_html=True,
+            )
 
 else:
     st.info("Please upload a CSV dataset to continue.")
