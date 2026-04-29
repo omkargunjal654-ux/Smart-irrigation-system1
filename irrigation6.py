@@ -13,7 +13,6 @@ uploaded_file = st.file_uploader("Upload CSV Dataset", type=["csv"])
 
 if uploaded_file is not None:
     df = pd.read_csv(uploaded_file)
-
     st.subheader("Dataset Preview")
     st.write(df.head())
 
@@ -30,7 +29,6 @@ if uploaded_file is not None:
 
     # Target column
     target_column = st.selectbox("Select Target Column", df.columns)
-
     X = df.drop(target_column, axis=1)
     y = df[target_column]
 
@@ -57,7 +55,6 @@ if uploaded_file is not None:
 
     # Prediction section
     st.subheader("Predict Irrigation")
-
     user_input = {}
     for col in X.columns:
         user_input[col] = st.number_input(f"Enter {col}", value=float(X[col].mean()))
@@ -73,7 +70,6 @@ if uploaded_file is not None:
             prediction = dt_model.predict(input_df)[0]
         else:
             prediction = rf_model.predict(input_df)[0]
-
         st.success(f"Prediction Result: {prediction}")
 
 else:
