@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import os
 from sklearn.model_selection import train_test_split
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
@@ -9,8 +10,9 @@ from sklearn.metrics import accuracy_score
 
 st.title("Smart Irrigation System using Machine Learning")
 
-# ── Load dataset directly (no upload needed) ──────────────────────────────
-DATASET_PATH = "irrigation_dataset.csv"
+# ── Load dataset using absolute path (works on Streamlit Cloud) ───────────
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DATASET_PATH = os.path.join(BASE_DIR, "irrigation_dataset.csv")
 
 @st.cache_data
 def load_data(path):
@@ -20,9 +22,9 @@ try:
     df = load_data(DATASET_PATH)
 except FileNotFoundError:
     st.error(
-        "Dataset file not found. "
-        "Make sure 'irrigation_dataset.csv' is uploaded to your GitHub repo "
-        "in the same folder as this script."
+        f"Dataset not found at: `{DATASET_PATH}`\n\n"
+        "Please make sure `irrigation_dataset.csv` is committed to your GitHub repo "
+        "in the **same folder** as your `.py` script."
     )
     st.stop()
 
@@ -56,7 +58,7 @@ df = df.fillna(df.mean())
 st.subheader("Encoded Dataset")
 st.write(df.head())
 
-# ── Step 4: Split features and target ────────────────────────────────────
+# ── Step 4: Split features and target ─────────────────────────────────────
 X = df.drop(TARGET, axis=1).astype(np.float64)
 y = df[TARGET].astype(int)
 
