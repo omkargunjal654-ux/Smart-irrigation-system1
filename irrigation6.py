@@ -10,7 +10,7 @@ from sklearn.metrics import accuracy_score
 st.title("Smart Irrigation System using Machine Learning")
 
 # ── Load dataset directly (no upload needed) ──────────────────────────────
-DATASET_PATH = "irrigation_dataset(5).csv"
+DATASET_PATH = "irrigation_dataset.csv"
 
 @st.cache_data
 def load_data(path):
@@ -20,8 +20,9 @@ try:
     df = load_data(DATASET_PATH)
 except FileNotFoundError:
     st.error(
-        f"Dataset file '{DATASET_PATH}' not found. "
-        "Make sure it is in the same folder as this script."
+        "Dataset file not found. "
+        "Make sure 'irrigation_dataset.csv' is uploaded to your GitHub repo "
+        "in the same folder as this script."
     )
     st.stop()
 
