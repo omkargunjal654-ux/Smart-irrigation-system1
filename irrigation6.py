@@ -10,8 +10,7 @@ from sklearn.metrics import accuracy_score
 st.title("Smart Irrigation System using Machine Learning")
 
 # ── Load dataset directly (no upload needed) ──────────────────────────────
-# Place your CSV file in the same folder as this script and set the name below
-DATASET_PATH = "irrigation_dataset.csv"
+DATASET_PATH = "irrigation_dataset(5).csv"
 
 @st.cache_data
 def load_data(path):
@@ -100,7 +99,7 @@ model_choice = st.selectbox("Choose Model", ["Decision Tree", "Random Forest"])
 
 if st.button("Predict Irrigation", use_container_width=True):
     model = dt_model if model_choice == "Decision Tree" else rf_model
-    prediction = model.predict(input_df)[0]   # 0 = OFF, 1 = ON
+    prediction = model.predict(input_df)[0]
     label = "ON" if prediction == 1 else "OFF"
 
     if label == "ON":
